@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geolocalizacion de Fincas</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      .controls {
+        margin-top: 16px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #pac-input {
+        background-color: #fff;
+        padding: 0 11px 0 13px;
+        width: 400px;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        text-overflow: ellipsis;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+        margin-left: -1px;
+        padding-left: 14px;  /* Regular padding-left + 1. */
+        width: 401px;
+      }
+
+      .pac-container {
+        font-family: Roboto;
+      }
+
+      #type-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #type-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+}
+
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    <script>
+	//Recolectar las Variables enviadas desde Power Builder (Zona)
+	//Caso Default Zona = TEGUZ
+	function pas()
+	{
+		var Url = location.href;
+		Url = Url.replace(/.*\?(.*?)/,"$1");
+		Variables = Url.split ("&");
+		for (i = 0; i < Variables.length; i++)
+		{
+			Separ = Variables[i].split("=");
+			eval ('var '+Separ[0]+'="'+Separ[1]+'"');
+		}
+	   // para la url de ejemplo
+	   // wwww.midominio.com/page.php?id=13&ref=12
+	   // tendriamos dos variables id y ref con sus valores
+	   //
+	   //Para comprobarlo:
+			//alert('Esto es el el parametro pasado por PB '+zona+' ');
+		    //alert(ref);
+			return zona;
+	}
+		
+	// Instanciar las Coordenadas Existentes de la Finca si la Tiene, en el caso de que NO, 
+	// No muestra el Punto. Variables (Latitud y Longitud)
+	function getVarsUrl(){
+    var url= location.search.replace("?", "");
+    var arrUrl = url.split("&");
+    var urlObj={};   
+    for(var i=0; i<arrUrl.length; i++){
+        var x= arrUrl[i].split("=");
+        urlObj[x[0]]=x[1]
+    }
+    return urlObj;
+	}
+	var misVariablesGet = getVarsUrl();
+	var c_x = misVariablesGet.x;
+	var c_y = misVariablesGet.y;
+	//alert('Esto es el el parametro pasado por PB '+c_y+' ');
+	
+	// ******************** Fin de Recolección de Variables *********************
+	var alo = 'TEGUZ';
+function initialize() {
+	//var lat_lng = "";
+	if (alo =="TEGUZ")
+	{
+		 lat_lng = 14.076090; 
+		 lat_2   = -87.209839;
+		 zoom	 = 12;
+	}/*else if(pas() == "SANPS")
+	{
+		 lat_lng = 15.505295799756198; 
+		 lat_2   = -88.0224609375;
+		 zoom	 = 12;
+	}else if(pas() == "CEIBA")
+	{
+		 lat_lng = 15.766597119902245; 
+		 lat_2   = -86.83071255683899;
+		 zoom	 = 8;
+	}else if(pas() == "LIPAC")
+	{
+		 lat_lng = 14.774882506516272; 
+		 lat_2   = -89.0386962890625;
+		 zoom	 = 8;
+	}else if(pas() == "LIATL")
+	{
+		 lat_lng = 15.675932151334584; 
+		 lat_2   = -87.38525390625;
+		 zoom	 = 10;
+	}else if(pas() == "ISLAS")
+	{
+		 lat_lng = 16.386232; 
+		 lat_2   = -86.404489;
+		 zoom	 = 12;
+	}*/
+	
+  var mapOptions = {
+    center: new google.maps.LatLng(lat_lng, lat_2),
+    zoom: zoom
+  };
+  var map = new google.maps.Map(document.getElementById('map-canvas'),
+    mapOptions);
+
+  var input = /** @type {HTMLInputElement} */(
+      document.getElementById('pac-input'));
+
+  var types = document.getElementById('type-selector');
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(types);
+
+  var autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo('bounds', map);
+
+  var infowindow = new google.maps.InfoWindow();
+  var marker = new google.maps.Marker({
+    map: map,
+    anchorPoint: new google.maps.Point(0, -29)
+  });
+  
+  // Si Manda Parametros de la Base de Datos Marca el Punto de la Finca
+  var myLatlng = new google.maps.LatLng(c_x,c_y);
+  var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title:"Finca Actual del Cliente"
+  });
+  
+  //var maro = placeMarker(e.latLng, map);
+
+  // Evento para Mostrar el Marcador dentro del Mapa
+  google.maps.event.addListener(map, 'click', function(e) {
+    //placeMarker(e.latLng, map);
+	// Marcador 
+	var poci = placeMarker(e.latLng, map);
+	
+	//google.maps.event.addListener(poci, 'click', procesaClick);
+	
+	//infowindow.setContent('<strong>Valores de Latiud y Longitud  : </strong>'+e.latLng+'');
+    //infowindow.open(map, poci);
+  });
+ 
+  google.maps.event.addListener(autocomplete, 'place_changed', function() {
+    infowindow.close();
+    marker.setVisible(false);
+    var place = autocomplete.getPlace();
+    if (!place.geometry) {
+      return;
+    }
+
+    // If the place has a geometry, then present it on a map.
+    if (place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    } else {
+      map.setCenter(place.geometry.location);
+      map.setZoom(17);  // Why 17? Because it looks good.
+    }
+    marker.setIcon(/** @type {google.maps.Icon} */({
+      url: place.icon,
+      size: new google.maps.Size(71, 71),
+      origin: new google.maps.Point(0, 0),
+      anchor: new google.maps.Point(17, 34),
+      scaledSize: new google.maps.Size(35, 35)
+    }));
+    marker.setPosition(place.geometry.location);
+    marker.setVisible(true);
+
+    var address = '';
+    if (place.address_components) {
+      address = [
+        (place.address_components[0] && place.address_components[0].short_name || ''),
+        (place.address_components[1] && place.address_components[1].short_name || ''),
+        (place.address_components[2] && place.address_components[2].short_name || '')
+      ].join(' ');
+    }
+	
+    //infowindow.setContent('<div><strong>' + place.name + '</strong><br>' + address);
+    //infowindow.open(map, poci);
+  });
+  
+  
+  
+  
+  // Sets a listener on a radio button to change the filter type on Places
+  // Autocomplete.
+  /*function setupClickListener(id, types) {
+    var radioButton = document.getElementById(id);
+    google.maps.event.addDomListener(radioButton, 'click', function() {
+      autocomplete.setTypes(types);
+    });
+  }*/
+
+//  setupClickListener('changetype-all', []);
+  //setupClickListener('changetype-establishment', ['establishment']);
+  //setupClickListener('changetype-geocode', ['geocode']);
+}
+
+	//Funcion para Agregar los Marcadores en el Mapa
+	function placeMarker(position, map) {
+		var marker = new google.maps.Marker({
+		position: position,
+		map: map,
+		title:"Finca Nueva del Cliente",
+		draggable:true
+	});
+	map.panTo(position);
+	var infowindow = new google.maps.InfoWindow();
+	google.maps.event.addListener(marker,'click', function(){
+		
+          infowindow.setContent("<strong>Valores de Latiud y Longitud  : </strong> "+position+" ")
+          infowindow.open(map,marker);
+		  var lato ;
+		  var lato1 = document.getElementById('lat_id');
+		  lato = position;
+		  procesaClick(lato);
+		  });
+		  
+	//google.maps.event.addListener(marker, 'click', procesaClick());
+	}
+
+function procesaClick(varf) {
+	var lato1 = document.getElementById('lat_id');
+	var lato;
+	lato1.setAttribute('value',varf);
+	alert(varf);
+}
+	
+	//Funcion para Limpiar los Marcadores que no se usan
+	function borrarMarcas(){
+       for (var i = 0; i < markerArray.length; i++) {
+        markerArray[i].setMap(null);
+    };
+ 
+    markerArray= [];
+    bounds = null;
+    bounds = new google.maps.LatLngBounds();
+    }
+	
+	google.maps.event.addDomListener(window, 'load', initialize);
+	
+	
+	function ReadFiles()
+{
+   var fso, f1, ts, s;
+   var ForReading = 1;
+   fso = new ActiveXObject("Scripting.FileSystemObject");
+   f1 = fso.CreateTextFile("C:\archprue.txt", true);
+   // Escribir una línea.
+   Response.Write("Escribir archivo <br>");
+   f1.WriteLine("Hola a todos");
+   f1.WriteBlankLines(1);
+   f1.Close();
+   // Leer los contenidos del archivo.
+   Response.Write("Leer archivo <br>");
+   ts = fso.OpenTextFile("C:\archprue.txt", ForReading); 
+   s = ts.ReadLine();
+   Response.Write("Contenido del archivo= '" + s + "'");
+   ts.Close();
+}
+    </script>
+	
+	
+  </head>
+  <body>
+    <input id="pac-input" class="controls" type="text"
+        placeholder="Ingrese la Direccion">
+	<input id="lat_id"> </input><input id="lat_long"> </input>
+    <div id="type-selector" class="controls">
+      <!-- <input type="radio" name="type" id="changetype-all" checked="checked">
+      <label for="changetype-all">All</label>
+
+      <input type="radio" name="type" id="changetype-establishment">
+      <label for="changetype-establishment">Establishments</label>
+
+      <input type="radio" name="type" id="changetype-geocode">
+      <label for="changetype-geocode">Geocodes</label> -->
+	  <input type="button" value="Limpiar" id="limpiar" onclick="ReadFiles()"></input>
+    </div>
+    <div id="map-canvas"></div>
+  </body>
+</html>
