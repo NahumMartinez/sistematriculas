@@ -1,0 +1,26 @@
+[33mcommit 5c53d5be4e5ae724ad65842a83e0134cc329c36e[m
+Author: NahumMartinez <sistematriculas@gmail.com>
+Date:   Wed May 27 14:46:43 2015 -0600
+
+    CAMBIO ALA INDEX
+
+[1mdiff --git a/index.html b/index.html[m
+[1mindex 236709e..f9161bf 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -2,7 +2,7 @@[m
+ <html>[m
+     <head>[m
+         <meta charset="UTF-8">[m
+[31m-        <title>AdminLTE | Dashboard</title>[m
+[32m+[m[32m        <title>AdminLTE | Dashboard nAHUM</title>[m
+         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>[m
+         <!-- bootstrap 3.0.2 -->[m
+         <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />[m
+[36m@@ -949,4 +949,4 @@[m
+         <script src="js/AdminLTE/demo.js" type="text/javascript"></script>[m
+ [m
+     </body>[m
+[31m-</html>[m
+\ No newline at end of file[m
+[32m+[m[32m</html>[m
